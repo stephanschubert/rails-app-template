@@ -13,7 +13,7 @@ plugin "rspec",
 plugin "rspec-rails",
   :git => "git://github.com/dchelimsky/rspec-rails.git", :submodule => true
 plugin => "factory_girl", 
-  :git => "git://github.com/thoughtbot/factory_girl.git, :submodule => true
+  :git => "git://github.com/thoughtbot/factory_girl.git", :submodule => true
 
 # Generators
 
