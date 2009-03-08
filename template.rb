@@ -15,6 +15,18 @@ plugin "rspec-rails",
 plugin "factory_girl", 
   :git => "git://github.com/thoughtbot/factory_girl.git", :submodule => true
 
+# Patch sqlite3 to support in-memory databases, 
+# so the testsuite will run much faster.
+
+plugin "memory_test_fix",
+  :git => "git://github.com/rsl/memory_test_fix.git", :submodule => true
+
+patched = File.read("config/database.yml").sub!(/db\/test\.sqlite3/, '":memory:"')
+File.open("config/database.yml", "w") do |f|
+  f.write(patched)
+end
+
+
 # Generators
 
 generate("rspec")
