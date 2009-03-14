@@ -1,1 +1,9 @@
 The Rails application template i use for a fresh setup.
+
+Submodules
+
+- Rspec
+- Rspec/Rails
+- factory_girl
+- remarkable
+- memory_test_fix

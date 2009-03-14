@@ -14,6 +14,8 @@ plugin "rspec-rails",
   :git => "git://github.com/dchelimsky/rspec-rails.git", :submodule => true
 plugin "factory_girl", 
   :git => "git://github.com/thoughtbot/factory_girl.git", :submodule => true
+plugin "remarkable",
+  :git => "git://github.com/carlosbrando/remarkable.git", :submodule => true
 
 # Patch sqlite3 to support in-memory databases, 
 # so the testsuite will run much faster.
@@ -25,7 +27,6 @@ patched = File.read("config/database.yml").sub!(/db\/test\.sqlite3/, '":memory:"
 File.open("config/database.yml", "w") do |f|
   f.write(patched)
 end
-
 
 # Generators
 
