@@ -2,8 +2,14 @@ The Rails application template i use for a fresh setup.
 
 Submodules
 
-- Rspec
-- Rspec/Rails
+- acts_as_list
+- acts_as_tree
+- asset_packager
 - factory_girl
-- remarkable
+- haml
+- jrails
 - memory_test_fix
+- remarkable
+- rspec
+- rspec/rails
+- will_paginate
