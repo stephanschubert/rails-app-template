@@ -8,6 +8,7 @@ Submodules
 - factory_girl
 - haml
 - jrails
+- make_resourceful
 - memory_test_fix
 - remarkable
 - rspec

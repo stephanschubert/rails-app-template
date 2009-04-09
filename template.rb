@@ -26,13 +26,14 @@ plugin "rspec", :git => "git://github.com/dchelimsky/rspec.git", :submodule => t
 plugin "rspec-rails", :git => "git://github.com/dchelimsky/rspec-rails.git", :submodule => true
 generate "rspec"
 
+plugin "make_resourceful", :git => "git://github.com/hcatlin/make_resourceful.git", :submodule => true
+
 plugin "will_paginate", :git => "git://github.com/mislav/will_paginate.git", :submodule => true
 
 # Patch sqlite3 to support in-memory databases, 
 # so the testsuite will run much faster.
 
-plugin "memory_test_fix",
-  :git => "git://github.com/rsl/memory_test_fix.git", :submodule => true
+plugin "memory_test_fix", :git => "git://github.com/rsl/memory_test_fix.git", :submodule => true
 
 patched = File.read("config/database.yml").sub!(/db\/test\.sqlite3/, '":memory:"')
 File.open("config/database.yml", "w") do |f|
