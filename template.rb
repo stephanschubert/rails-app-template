@@ -6,7 +6,9 @@
 # Delete unnecessary files
 
 run "rm README"
-run "rm doc/README_FOR_APP"
+run "rm -rf doc"
+run "rm -f public/stylesheets/*"
+run "rm -f public/javascripts/*"
 run "rm public/index.html"
 run "rm public/favicon.ico"
 run "rm public/robots.txt"
@@ -41,19 +43,19 @@ end
 
 ##
 # Using the gem versions now, because remarkable_rails doesn't always work
-# with rspec' edge versions. And test stuff doesn't really belong to the app anyways.
+# with rspec' edge versions. 
 #
-# plugin "factory_girl", :git => "git://github.com/thoughtbot/factory_girl.git", :submodule => true
-# plugin "rspec", :git => "git://github.com/dchelimsky/rspec.git", :submodule => true
-# plugin "rspec-rails", :git => "git://github.com/dchelimsky/rspec-rails.git", :submodule => true
-# plugin "remarkable", :git => "git://github.com/carlosbrando/remarkable.git", :submodule => true
-# generate "rspec"
+# And test stuff doesn't really belong to the app anyways so we put the
+# config.gem calls just in config/environments/test.rb
 #
-# The remarkable_rails gem will install rspec/rspec-rails too. 
-#
+test_gems = <<-END
+config.gem "rspec", :lib => false, :source => "http://gems.github.com"
+config.gem "rspec-rails", :lib => false, :source => "http://gems.github.com"
+config.gem "remarkable_rails", :lib => false, :source => "http://gems.github.com"
+config.gem "thoughtbot-factory_girl", :lib => "factory_girl", :source => "http://gems.github.com"
+END
 
-gem "remarkable_rails", :source => "http://gems.github.com"
-gem "thoughtbot-factory_girl", :lib => "factory_girl", :source => "http://gems.github.com"
+run "echo '#{test_gems}' >> config/environments/test.rb"
 
 rake "gems:install", :sudo => true
 generate "rspec"
