@@ -1,16 +1,19 @@
 The Rails application template i use for a fresh setup.
 
-Submodules
+== 1. Submodules ==
 
 - acts_as_list
 - acts_as_tree
 - asset_packager
-- factory_girl
 - haml
 - jrails
 - make_resourceful
 - memory_test_fix
+- will_paginate
+
+== 2. Gems ==
+
+- factory_girl
 - remarkable
 - rspec
 - rspec/rails
-- will_paginate

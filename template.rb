@@ -40,9 +40,8 @@ File.open("config/database.yml", "w") do |f|
 end
 
 ##
-# Using the gem versions now, because remarkable doesn't always work
-# with rspec' edge versions. And test stuff doesn't really belong to
-# the app anyways.
+# Using the gem versions now, because remarkable_rails doesn't always work
+# with rspec' edge versions. And test stuff doesn't really belong to the app anyways.
 #
 # plugin "factory_girl", :git => "git://github.com/thoughtbot/factory_girl.git", :submodule => true
 # plugin "rspec", :git => "git://github.com/dchelimsky/rspec.git", :submodule => true
@@ -50,10 +49,10 @@ end
 # plugin "remarkable", :git => "git://github.com/carlosbrando/remarkable.git", :submodule => true
 # generate "rspec"
 #
-# The remarkable gem will install rspec/rspec-rails too. 
+# The remarkable_rails gem will install rspec/rspec-rails too. 
 #
 
-gem "remarkable", :source => "http://gems.github.com"
+gem "remarkable_rails", :source => "http://gems.github.com"
 gem "thoughtbot-factory_girl", :lib => "factory_girl", :source => "http://gems.github.com"
 
 rake "gems:install", :sudo => true
