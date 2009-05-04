@@ -64,13 +64,13 @@ generate "rspec"
 # Setup simple application layout
 #
 
-file "app/views/layouts/default.html.haml, <<-END
+file "app/views/layouts/default.html.haml", <<-END
 !!!
 %html
   %head
     = javascript_included_merged :base
     = stylesheet_link_merged :base
-    %title "alpha version"
+    %title= "alpha version"
   %body
     = yield
 END
