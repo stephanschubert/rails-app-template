@@ -57,8 +57,41 @@ END
 
 run "echo '#{test_gems}' >> config/environments/test.rb"
 
-rake "gems:install", :sudo => true
+rake "gems:installa", :sudo => true
 generate "rspec"
+
+##
+# Setup simple application layout
+#
+
+file "app/views/layouts/default.html.haml, <<-END
+!!!
+%html
+  %head
+    = javascript_included_merged :base
+    = stylesheet_link_merged :base
+    %title "alpha version"
+  %body
+    = yield
+END
+
+# Create screen css file
+run "touch public/stylesheets/screen.css
+
+##
+# Setup asset packager's yml file
+#
+
+file "config/asset_packages.yml", <<-END
+---
+javascripts:
+- base:
+  - jquery
+  - jrails
+stylesheets:
+- base:
+  - screen  
+END
 
 # Commit to git
 
