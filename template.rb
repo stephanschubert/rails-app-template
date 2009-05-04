@@ -48,7 +48,12 @@ end
 # And test stuff doesn't really belong to the app anyways so we put the
 # config.gem calls just in config/environments/test.rb
 #
+# The two linebreaks ensure that the first line will not get appended
+# the last commented line.
+#
 test_gems = <<-END
+
+
 config.gem "rspec", :lib => false, :source => "http://gems.github.com"
 config.gem "rspec-rails", :lib => false, :source => "http://gems.github.com"
 config.gem "remarkable_rails", :lib => false, :source => "http://gems.github.com"
