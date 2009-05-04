@@ -57,7 +57,7 @@ END
 
 run "echo '#{test_gems}' >> config/environments/test.rb"
 
-rake "gems:installa", :sudo => true
+rake "gems:install", :sudo => true
 generate "rspec"
 
 ##
