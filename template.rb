@@ -76,7 +76,7 @@ file "app/views/layouts/default.html.haml", <<-END
 END
 
 # Create screen css file
-run "touch public/stylesheets/screen.css
+run "touch public/stylesheets/screen.css"
 
 ##
 # Setup asset packager's yml file
