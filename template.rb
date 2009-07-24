@@ -10,8 +10,11 @@ run "rm -rf doc"
 run "rm -f public/stylesheets/*"
 run "rm -f public/javascripts/*"
 run "rm public/index.html"
-run "rm public/favicon.ico"
-run "rm public/robots.txt"
+
+# Could be deleted but result in errors in your logs - 
+# So don't forget to replace them with your own versions!
+#run "rm public/favicon.ico" 
+#run "rm public/robots.txt"
 
 # Install submoduled plugins
 
@@ -58,6 +61,7 @@ config.gem "rspec", :lib => false, :source => "http://gems.github.com"
 config.gem "rspec-rails", :lib => false, :source => "http://gems.github.com"
 config.gem "remarkable_rails", :lib => false, :source => "http://gems.github.com"
 config.gem "thoughtbot-factory_girl", :lib => "factory_girl", :source => "http://gems.github.com"
+config.gem "fakefs", :lib => false, :source => "https://gems.github.com"
 END
 
 run "echo '#{test_gems}' >> config/environments/test.rb"
