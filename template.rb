@@ -99,6 +99,11 @@ template do
   # Set up spork
   run "spork --bootstrap"
 
+  # Set up remarkable_rails
+  append_file "spec/spec_helper.rb", <<-EOS.gsub(/^  /, '')
+  require "remarkable_rails"
+  EOS
+
   # Gems for cucumber environment
   generate "cucumber --spork"
   remove_gems :env => 'cucumber'
