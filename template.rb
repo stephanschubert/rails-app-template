@@ -96,6 +96,9 @@ template do
   generate "rspec"
   generate "email_spec"
 
+  # Set up spork
+  run "spork --bootstrap"
+
   # Gems for cucumber environment
   generate "cucumber --spork"
   remove_gems :env => 'cucumber'
@@ -111,9 +114,6 @@ template do
 
   # Make sure all these gems are actually installed locally
   run "sudo rake gems:install RAILS_ENV=cucumber"
-
-  # Set up spork
-  run "spork --bootstrap"
 
   # Install submoduled plugins
   plugin "acts_as_list",
