@@ -236,7 +236,7 @@ template do
   # Commit all work so far
   git :submodule => "init"
   git :add => "."
-  git :commit => "-a -m 'Added plugins, gems, configuration and controllers."
+  git :commit => "-a -m 'Added plugins, gems, configuration and controllers.'"
 
   
 end
