@@ -81,6 +81,7 @@ template do
   rake "db:migrate"
 
   # Gems for test environment
+  gem_with_version "spork", :lib => false, :env => 'test'
   gem_with_version "webrat", :lib => false, :env => 'test'
   gem_with_version "rspec", :lib => false, :env => 'test'
   gem_with_version "rspec-rails", :lib => 'spec/rails', :env => 'test'
@@ -95,8 +96,9 @@ template do
   generate "email_spec"
 
   # Gems for cucumber environment
-  generate "cucumber"
+  generate "cucumber --spork"
   remove_gems :env => 'cucumber'
+  gem_with_version "spork", :lib => false, :env => 'cucumber'
   gem_with_version "aslakhellesoy-cucumber", :lib => false, :env => 'cucumber'
   gem_with_version "webrat", :lib => false, :env => 'cucumber'
   gem_with_version "rspec", :lib => false, :env => 'cucumber'
@@ -107,6 +109,9 @@ template do
 
   # Make sure all these gems are actually installed locally
   run "sudo rake gems:install RAILS_ENV=cucumber"
+
+  # Set up spork
+  run "spork --bootstrap"
 
   # Install submoduled plugins
   plugin "acts_as_list",
@@ -174,7 +179,7 @@ template do
   EOS
 
   # Set up factory_girl's sequences/factories
-  append_file 'features/support/env.rb', <<-EOS.gsub(/^ /, '')
+  append_file 'features/support/env.rb', <<-EOS.gsub(/^  /, '')
   require "email_spec/cucumber"
   require File.dirname(__FILE__) + "/../../spec/sequences"
   require File.dirname(__FILE__) + "/../../spec/factories"
@@ -184,7 +189,7 @@ template do
   end
   EOS
   
-  append_file 'spec/spec_helper.rb', <<-EOS.gsub(/^ /, '')
+  append_file 'spec/spec_helper.rb', <<-EOS.gsub(/^  /, '')
   require File.dirname(__FILE__) + '/sequences'
   require File.dirname(__FILE__) + '/factories'
   EOS
