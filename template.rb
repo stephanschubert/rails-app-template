@@ -78,6 +78,7 @@ template do
   # Set up sessions
   rake "db:create:all"
   rake "db:sessions:create"
+  rake "db:migrate"
 
   # Gems for test environment
   gem_with_version "webrat", :lib => false, :env => 'test'
