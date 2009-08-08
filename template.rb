@@ -30,7 +30,8 @@ template do
     pool: 5
     username: root
     password:
-    socket: /tmp/mysql.sock
+    timeout: 5000
+    host: localhost
  
   test:
     adapter: sqlite3
@@ -38,10 +39,7 @@ template do
     reconnect: false
     database: ":memory:"
     pool: 5
-    username: root
-    password:
-    socket: /tmp/mysql.sock
- 
+
   production:
     adapter: mysql
     encoding: utf8
@@ -50,6 +48,8 @@ template do
     pool: 5
     username: root
     password:
+    timeout: 5000
+    host: localhost
   EOS
 
   # Copy database.yml for distribution use
@@ -140,6 +140,9 @@ template do
 
   plugin 'formtastic',
   :git => 'git://github.com/justinfrench/formtastic.git', :submodule => true
+
+  plugin 'memory_test_fix',
+  :git => 'git://github.com/rsl/memory_test_fix.git', :submodule => true
 
   generate "blue_ridge"
   run "ruby vendor/plugins/asset_packager/install.rb"
