@@ -1,111 +1,273 @@
-##
-# Setup a fresh Rails application with git
-# Use my sake task git:hub:rails:new_app for example.
-# 
+# Wrap template commands in block so their execution can be tested.
 
-# Delete unnecessary files
-
-run "rm README"
-run "rm -rf doc"
-run "rm -f public/stylesheets/*"
-run "rm -f public/javascripts/*"
-run "rm public/index.html"
-
-# Could be deleted but result in errors in your logs - 
-# So don't forget to replace them with your own versions!
-#run "rm public/favicon.ico" 
-#run "rm public/robots.txt"
-
-# Install submoduled plugins
-
-plugin "acts_as_list", :git => "git://github.com/rails/acts_as_list.git", :submodule => true
-plugin "acts_as_tree", :git => "git://github.com/rails/acts_as_tree.git", :submodule => true
-
-plugin "asset_packager", :git => "git://github.com/sbecker/asset_packager.git", :submodule => true
-run "ruby vendor/plugins/asset_packager/install.rb"
-
-plugin "haml", :git => "git://github.com/nex3/haml.git", :submodule => true
-
-plugin "jrails", :git => "git://github.com/aaronchi/jrails.git", :submodule => true
-run "ruby vendor/plugins/jrails/install.rb"
-
-plugin "make_resourceful", :git => "git://github.com/hcatlin/make_resourceful.git", :submodule => true
-plugin "will_paginate", :git => "git://github.com/mislav/will_paginate.git", :submodule => true
-
-##
-# Patch sqlite3 to support in-memory databases, 
-# so the testsuite will run much faster.
-#
-
-plugin "memory_test_fix", :git => "git://github.com/rsl/memory_test_fix.git", :submodule => true
-
-patched = File.read("config/database.yml").sub!(/db\/test\.sqlite3/, '":memory:"')
-File.open("config/database.yml", "w") do |f|
-  f.write(patched)
+def template(&block)
+  @store_template = block
 end
 
-##
-# Using the gem versions now, because remarkable_rails doesn't always work
-# with rspec' edge versions. 
-#
-# And test stuff doesn't really belong to the app anyways so we put the
-# config.gem calls just in config/environments/test.rb
-#
-# The two linebreaks ensure that the first line will not get appended
-# the last commented line.
-#
-test_gems = <<-END
+template do
 
+  # Configuration
+  app_name = File.basename(root)
+  app_db   = app_name.gsub(/[-\s]/, "_").downcase
 
-config.gem "rspec", :lib => false, :source => "http://gems.github.com"
-config.gem "rspec-rails", :lib => false, :source => "http://gems.github.com"
-config.gem "remarkable_rails", :lib => false, :source => "http://gems.github.com"
-config.gem "thoughtbot-factory_girl", :lib => "factory_girl", :source => "http://gems.github.com"
-config.gem "fakefs", :lib => false, :source => "https://gems.github.com"
-END
+  # Delete unnecessary files
+  rm "README"
+  rm "public/index.html"
+  rm "public/favicon.ico"
+  rm "public/robots.txt"
+  rm_rf "public/javascripts/*"
+  rm_rf "test"
 
-run "echo '#{test_gems}' >> config/environments/test.rb"
+  # Setup new README
+  file "README", "= #{app_name}"
 
-rake "gems:install", :sudo => true
-generate "rspec"
+  file "config/database.yml", <<-EOS.gsub(/^  /, '')
+  development:
+    adapter: mysql
+    encoding: utf8
+    reconnect: false
+    database: #{app_db}_development
+    pool: 5
+    username: root
+    password:
+    socket: /tmp/mysql.sock
+ 
+  test:
+    adapter: sqlite3
+    encoding: utf8
+    reconnect: false
+    database: ":memory:"
+    pool: 5
+    username: root
+    password:
+    socket: /tmp/mysql.sock
+ 
+  production:
+    adapter: mysql
+    encoding: utf8
+    reconnect: false
+    database: #{app_db}_production
+    pool: 5
+    username: root
+    password:
+  EOS
 
-##
-# Setup simple application layout
-#
+  # Copy database.yml for distribution use
+  run "cp config/database.yml config/database.yml.example"
 
-file "app/views/layouts/default.html.haml", <<-END
-!!!
-%html
-  %head
-    = javascript_included_merged :base
-    = stylesheet_link_merged :base
-    %title= "alpha version"
-  %body
-    = yield
-END
+  # Setup .gitignore file
+  append_file ".gitignore", <<-EOS.gsub(/^  /, '')
+  tmp/**/*
+  log/*.log
+  doc/api
+  doc/app
+  config/database.yml
+  EOS
 
-# Create screen css file
-run "touch public/stylesheets/screen.css"
+  # Set up git repository and commit everything so far
+  git :init
+  git :add => "."
+  git :commit => "-a -m 'Initial commit'"
 
-##
-# Setup asset packager's yml file
-#
+  # Set up session store initializer
+  initializer 'session_store.rb', <<-EOS.gsub(/^ /, '')
+  ActionController::Base.session = { :session_key => '_#{(1..6).map { |x| (65 + rand(26)).chr }.join}_session', :secret => '#{(1..40).map { |x| (65 + rand(26)).chr }.join}' }
+  ActionController::Base.session_store = :active_record_store
+  EOS
 
-file "config/asset_packages.yml", <<-END
----
-javascripts:
-- base:
-  - jquery
-  - jrails
-stylesheets:
-- base:
-  - screen  
-END
+  # Set up sessions
+  rake "db:create:all"
+  rake "db:sessions:create"
 
-# Commit to git
+  # Gems for test environment
+  gem_with_version "webrat", :lib => false, :env => 'test'
+  gem_with_version "rspec", :lib => false, :env => 'test'
+  gem_with_version "rspec-rails", :lib => 'spec/rails', :env => 'test'
+  gem_with_version 'bmabey-email_spec', :source => 'http://gems.github.com', :lib => 'email_spec', :env => 'test'
+  gem_with_version 'thoughtbot-factory_girl', :source => 'http://gems.github.com', :lib => 'factory_girl', :env => 'test'
+  gem_with_version 'fakeweb', :env => 'test'
 
-git :submodule => "init"
-git :add => "."
-git :commit => "-a -m 'Applied application template from github.com/jazen/rails-app-template'"
+  # Make sure all these gems are actually installed locally
+  run "sudo rake gems:install RAILS_ENV=test"
 
-# More to come.
+  generate "rspec"
+  generate "email_spec"
+
+  # Gems for cucumber environment
+  generate "cucumber"
+  remove_gems :env => 'cucumber'
+  gem_with_version "aslakhellesoy-cucumber", :lib => false, :env => 'cucumber'
+  gem_with_version "webrat", :lib => false, :env => 'cucumber'
+  gem_with_version "rspec", :lib => false, :env => 'cucumber'
+  gem_with_version "rspec-rails", :lib => 'spec/rails', :env => 'cucumber'
+  gem_with_version 'bmabey-email_spec', :source => 'http://gems.github.com', :lib => 'email_spec', :env => 'cucumber'
+  gem_with_version 'thoughtbot-factory_girl', :source => 'http://gems.github.com', :lib => 'factory_girl', :env => 'cucumber'
+  gem_with_version 'fakeweb', :env => 'cucumber'
+
+  # Make sure all these gems are actually installed locally
+  run "sudo rake gems:install RAILS_ENV=cucumber"
+
+  # Install submoduled plugins
+  plugin "acts_as_list",
+  :git => "git://github.com/rails/acts_as_list.git", :submodule => true
+
+  plugin "acts_as_tree",
+  :git => "git://github.com/rails/acts_as_tree.git", :submodule => true
+
+  plugin "asset_packager",
+  :git => "git://github.com/sbecker/asset_packager.git", :submodule => true
+
+  plugin "haml",
+  :git => "git://github.com/nex3/haml.git", :submodule => true
+
+  plugin "jrails",
+  :git => "git://github.com/aaronchi/jrails.git", :submodule => true
+
+  plugin "make_resourceful",
+  :git => "git://github.com/hcatlin/make_resourceful.git", :submodule => true
+
+  plugin "will_paginate",
+  :git => "git://github.com/mislav/will_paginate.git", :submodule => true
+
+  plugin 'state_machine',
+  :git => 'git://github.com/pluginaweek/state_machine.git', :submodule => true
+  
+  plugin 'rails_footnotes',
+  :git => 'git://github.com/josevalim/rails-footnotes.git', :submodule => true
+
+  plugin 'blue_ridge',
+  :git => 'git://github.com/relevance/blue-ridge.git', :submodule => true
+
+  plugin 'formtastic',
+  :git => 'git://github.com/justinfrench/formtastic.git', :submodule => true
+
+  generate "blue_ridge"
+  run "ruby vendor/plugins/asset_packager/install.rb"
+  run "ruby vendor/plugins/jrails/install.rb"
+  
+  # Setup simple application layout
+  file "app/views/layouts/default.html.haml", <<-EOS.gsub(/^  /, "")
+  !!!
+  %html
+    %head
+      = javascript_included_merged :base
+      = stylesheet_link_merged :base
+      %title= "alpha version"
+    %body
+      = yield
+  EOS
+
+  # Setup asset packager's yml file
+  file "config/asset_packages.yml", <<-EOS.gsub(/^  /, "")
+  ---
+  javascripts:
+  - base:
+    - jquery
+    - jrails
+  stylesheets:
+  - base:
+    - screen  
+  EOS
+
+  # Set up factory_girl's sequences/factories
+  append_file 'features/support/env.rb', <<-EOS.gsub(/^ /, '')
+  require "email_spec/cucumber"
+  require File.dirname(__FILE__) + "/../../spec/sequences"
+  require File.dirname(__FILE__) + "/../../spec/factories"
+ 
+  Before do
+    FakeWeb.allow_net_connect = false
+  end
+  EOS
+  
+  append_file 'spec/spec_helper.rb', <<-EOS.gsub(/^ /, '')
+  require File.dirname(__FILE__) + '/sequences'
+  require File.dirname(__FILE__) + '/factories'
+  EOS
+
+  run "touch spec/sequences.rb"
+  run "touch spec/factories.rb"
+
+  # Set up sessions controller
+  generate "rspec_controller", "sessions new create destroy"
+
+  file "app/controllers/sessions_controller.rb", <<-EOS.gsub(/^  /, "")
+  class SessionsController < ApplicationController
+    def new
+    end
+
+    def create
+    end
+
+    def destroy
+    end
+
+    private
+
+    def logged_in?
+      session[:user_id]
+    end
+  end
+  EOS
+
+  # Set up protected controller
+  generate "rspec_controller", "protected"
+
+  file "app/controllers/protected_controller.rb", <<-EOS.gsub(/^  /, "")
+  class ProtectedController < SessionsController
+    before_filter :require_login
+
+    private
+
+    def require_login
+      redirect_to(login_url) unless logged_in?
+    end
+  end
+  EOS
+
+  # Set up routes
+
+  route "map.resource :session"
+  route "map.login '/login', :controller => 'sessions', :action => 'new'"
+
+  # Commit all work so far
+  git :submodule => "init"
+  git :add => "."
+  git :commit => "-a -m 'Added plugins, gems, configuration and controllers."
+
+  
+end
+
+# Helpers
+
+def gem_with_version(name, options = {})
+  if gem_spec = Gem.source_index.find_name(name).last
+    version = gem_spec.version.to_s
+    gem(name, options.merge(:version => ">=#{version}"))
+  else
+    $stderr.puts "ERROR: cannot find gem #{name}; cannot load version. Adding it anyway."
+    gem(name, options)
+  end
+end
+ 
+def remove_gems(options)
+  env = options.delete(:env)
+  gems_code = /^\s*config.gem.*\n/
+  file = env.nil? ? 'config/environment.rb' : "config/environments/#{env}.rb"
+  gsub_file file, gems_code, ""
+end
+
+def rm(file)
+  run "rm #{file}"
+end
+
+def rm_rf(dir)
+  run "rm -rf #{dir}"
+end
+
+def run_template
+  @store_template.call
+end
+ 
+# Hold off running the template whilst in unit testing mode
+run_template unless ENV['TEST_MODE'] 
