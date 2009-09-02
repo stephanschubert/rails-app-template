@@ -166,7 +166,7 @@ template do
   !!!
   %html
     %head
-      = javascript_included_merged :base
+      = javascript_include_merged :base
       = stylesheet_link_merged :base
       %title= "alpha version"
     %body
