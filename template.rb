@@ -161,6 +161,51 @@ template do
   run "ruby vendor/plugins/asset_packager/install.rb"
   run "ruby vendor/plugins/jrails/install.rb"
   
+  # Setup HAML initializer
+  initializer 'haml.rb', <<-EOS.gsub(/^  /, '')
+  Haml::Template::options.update({
+
+    # Render HTML DOCTYPE and affects tag rendering.
+    # We don't really want XHTML due to several exotic
+    # bugs and problems.
+    :format => :html4,
+                                 
+    # Double-quote attributes
+    :attr_wrapper => '"',
+                                 
+    # Always escape HTML.
+    # To prevent escaping use '!='                                 
+    #                               
+    # NOTE: DO NOT USE - It doesn't work correctly using
+    #       the layout management due to some scope issue.
+    #                              
+    # :escape_html => true                                 
+  })
+
+  if Rails.env.production?
+    # Minimal whitespace in CSS files.
+    Sass::Plugin.options[:style] = :compact
+  
+    # Render CSS from SASS when the application starts.
+    Sass::Plugin.update_stylesheets
+  end
+  EOS
+
+  # Setup standardista initalizer
+  initializer 'haml.rb', <<-EOS.gsub(/^  /, '')
+  module StandardistaHelper
+    #
+    # Overrides the tag helper from Rails to disable self-closing
+    # tags which don't belong to HTML.
+    #
+    def tag(name, options = nil, open = false, escape = true)
+      "<#{name}#{tag_options(options, escape) if options}>"
+    end
+  end
+
+  ActionView::Base.send :include, StandardistaHelper
+  EOS  
+
   # Setup simple application layout
   file "app/views/layouts/default.html.haml", <<-EOS.gsub(/^  /, "")
   !!!
