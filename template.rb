@@ -15,6 +15,7 @@ template do
   rm "public/index.html"
   rm "public/favicon.ico"
   rm "public/robots.txt"
+  rm "public/images/rails.png"
   rm_rf "public/javascripts/*"
   rm_rf "test"
 
