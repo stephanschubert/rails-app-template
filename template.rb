@@ -195,7 +195,7 @@ template do
     # tags which don't belong to HTML.
     #
     def tag(name, options = nil, open = false, escape = true)
-      "<\#{name}\#{tag_options(options, escape) if options}>"
+      "<\#\{name\}\#\{tag_options(options, escape) if options\}>"
     end
   end
 
@@ -203,8 +203,8 @@ template do
   EOS  
 
   # Setup simple application layout
-  file "app/views/layouts/default.html.haml", <<-EOS.gsub(/^  /, "")
-  !!!
+  file "app/views/layouts/default.html.haml", <<-EOS.gsub(/^  /, '')
+  !!! strict
   %html
     %head
       = javascript_include_merged :base
@@ -215,7 +215,7 @@ template do
   EOS
 
   # Setup asset packager's yml file
-  file "config/asset_packages.yml", <<-EOS.gsub(/^  /, "")
+  file "config/asset_packages.yml", <<-EOS.gsub(/^  /, '')
   ---
   javascripts:
   - base:
