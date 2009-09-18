@@ -200,7 +200,7 @@ template do
     # tags which don't belong to HTML.
     #
     def tag(name, options = nil, open = false, escape = true)
-      "<#{name}#{tag_options(options, escape) if options}>"
+      "<\#{name}\#{tag_options(options, escape) if options}>"
     end
   end
 
