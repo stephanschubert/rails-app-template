@@ -14,7 +14,6 @@ template do
   rm "README"
   rm "public/index.html"
   rm "public/favicon.ico"
-  rm "public/robots.txt"
   rm "public/images/rails.png"
   rm_rf "public/javascripts/*"
   rm_rf "test"
@@ -155,7 +154,12 @@ template do
 
   generate "blue_ridge"
   run "ruby vendor/plugins/asset_packager/install.rb"
-  run "ruby vendor/plugins/jrails/install.rb"
+
+  # JRails' install script doesn't work correctly for some time, so
+  # let's copy the files ourselves..
+  # run "ruby vendor/plugins/jrails/install.rb"
+
+  run "cp vendor/plugins/jrails/javascripts/*.js public/javascripts/"
   
   # Setup HAML initializer
   initializer 'haml.rb', <<-EOS.gsub(/^  /, '')
