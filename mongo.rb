@@ -29,14 +29,44 @@ template do
   doc/app
   EOS
 
-  # Setup mongodb for all environments
+  # Setup mongoid for all environments
 
-  gem_with_version "mongo_mapper"
+  gem_with_version "mongoid", :lib => "mongoid", :source => "http://gemcutter.org"
  
-  initializer "mongo.rb", <<-EOS.gsub(/^  /, '')
-  MongoMapper.database = "#{app_name}-\#{Rails.env}"
+  file "config/database.mongo.yml", <<-EOS.gsub(/^  /, '')
+  defaults: &defaults
+    adapter: mongo
+    host: localhost
+
+  test:
+    <<: *defaults
+    database: #{app_name}-test
+
+  cucumber:
+    <<: *defaults
+    database: #{app_name}-cuc
+
+  development:
+    <<: *defaults
+    database: #{app_name}-dev
+
+  production:
+    <<: *defaults
+    database: #{app_name}
   EOS
-  
+
+  initializer "mongoid.rb", <<-EOS.gsub(/^  /, '')
+  File.open(File.join(Rails.root, 'config/database.mongo.yml'), 'r') do |f|
+    @settings = YAML.load(f)[Rails.env]
+  end
+
+  connection = Mongo::Connection.new(@settings["host"])
+  Mongoid.database = connection.db(@settings["database"])
+
+  if @settings["username"]
+    Mongoid.database.authenticate(@settings["username"], @settings["password"])
+  end
+  EOS
 
   # Gems for test environment
   gem_with_version "spork", :lib => false, :env => 'test'
