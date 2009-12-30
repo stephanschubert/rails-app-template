@@ -29,6 +29,15 @@ template do
   doc/app
   EOS
 
+  # Setup mongodb for all environments
+
+  gem_with_version "mongo_mapper"
+ 
+  initializer "mongo.rb", <<-EOS.gsub(/^  /, '')
+  MongoMapper.database = "#{app_name}-\#{Rails.env}"
+  EOS
+  
+
   # Gems for test environment
   gem_with_version "spork", :lib => false, :env => 'test'
   gem_with_version "webrat", :lib => false, :env => 'test'
